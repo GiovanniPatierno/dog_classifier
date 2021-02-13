@@ -10,14 +10,24 @@ from keras.preprocessing import image
 from keras.utils import np_utils
 from sklearn.datasets import load_files
 from tqdm import tqdm
+import cv2
 
 from extract_bottleneck_features import *
 
 
 def Dog_Recognize_app(imgpath):
     predict = Resnet50_prediction_breed(imgpath)
+    img = cv2.imread(imgpath)
+    img = cv2.resize(img, (450,450))
+    cv2.putText(img, 'Predizione razza: {}'.format(dog_names[predict]), (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+    #cv2.putText(img, 'Razza: {}'.format(str(label_test)), (20, 60),
+    #cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 116, 55), 3)
+
+    cv2.imshow("Predizione ",img)
     print("Questo cane sembra proprio appartenente alla razza: ")
     print(dog_names[predict])
+    cv2.waitKey(0)
+
 
 
 def Resnet50_prediction_breed(img_path):
@@ -99,7 +109,7 @@ print('There are %d validation dog images.' % len(valid_files))
 print('There are %d test dog images.'% len(test_files))
 
 
-train_Resnet50, valid_Resnet50, test_Resnet50 = get_bottleneck_features('bottleneck_features/DogResnet50Data.npz')
+train_Resnet50, valid_Resnet50, test_Resnet50 = get_bottleneck_features('DogResnet50Data.npz')
 
 Resnet50_model = Sequential()
 Resnet50_model.add(GlobalAveragePooling2D(input_shape=(train_Resnet50.shape[1:])))
@@ -115,9 +125,9 @@ Resnet50_model.load_weights('weights.best.Resnet50.hdf5')
 test_model(Resnet50_model,test_Resnet50, test_targets, 'Resnet50')
 
 #Qui eseguo i test per riscontrate se effettivamente la macchina è accurata,controllando l output ricevuto dalla mia funziode di gestione Dog_Recognize_app
-Dog_Recognize_app('images/American_water_spaniel_00648.jpg')
-Dog_Recognize_app('images/Brittany_02625.jpg')
-Dog_Recognize_app('images/Curly-coated_retriever_03896.jpg')
+#Dog_Recognize_app('images/American_water_spaniel_00648.jpg')
+#Dog_Recognize_app('images/Brittany_02625.jpg')
+#Dog_Recognize_app('images/Curly-coated_retriever_03896.jpg')
 Dog_Recognize_app('dogImages/valid/004.Akita/Akita_00247.jpg')
 Dog_Recognize_app('dogImages/valid/039.Bull_terrier/Bull_terrier_02732.jpg')
 Dog_Recognize_app('dogImages/valid/054.Collie/Collie_03791.jpg')
